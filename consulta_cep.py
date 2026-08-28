@@ -1,4 +1,5 @@
 import requests
+import json
 
 historico = []
 
@@ -7,7 +8,7 @@ def limpar_cep(cep):
 
 def cep_valido(cep):
     return cep.isdigit() and len(cep) == 8
-    
+
 def consultar_cep(cep):
     url = f"https://viacep.com.br/ws/{cep}/json/"
     resposta = requests.get(url)
@@ -21,22 +22,27 @@ def exibir_endereco(dados):
     print("Cidade:", dados["localidade"])
     print("Estado:", dados["uf"])
 
-while True:  
-    print("\n=== Consulta de CEP ===")
+while True:
     print("1 - Buscar um CEP")
-    print("2 - Sair")
-    print("3 - Sair")
+    print("2 - Ver histórico de buscas")
+    print("3 - Salvar histórico em arquivo")
+    print("4 - Sair")
 
     opcao = input("Escolha uma opção: ")
+
     if opcao == "1":
         cep = limpar_cep(input("Digite o CEP (só números): "))
+
         if not cep_valido(cep):
             print("CEP inválido! Digite 8 números, sem espaços ou traços.")
             continue
+
         dados = consultar_cep(cep)
+
         if dados.get("erro"):
             print("CEP não encontrado.")
             continue
+
         exibir_endereco(dados)
         historico.append(dados)
 
@@ -48,6 +54,12 @@ while True:
                 print(item["cep"], "-", item["logradouro"])
 
     elif opcao == "3":
+        with open("historico.json", "w") as arquivo:
+            json.dump(historico, arquivo, indent=2, ensure_ascii=False)
+
+        print("Histórico salvo em historico.json!")
+
+    elif opcao == "4":
         print("Até logo!")
         break
 
