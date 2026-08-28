@@ -1,5 +1,13 @@
 import requests
 
+historico = []
+
+def limpar_cep(cep):
+    return cep.replace("-", "").replace(".", "").strip()
+
+def cep_valido(cep):
+    return cep.isdigit() and len(cep) == 8
+    
 def consultar_cep(cep):
     url = f"https://viacep.com.br/ws/{cep}/json/"
     resposta = requests.get(url)
@@ -17,20 +25,31 @@ while True:
     print("\n=== Consulta de CEP ===")
     print("1 - Buscar um CEP")
     print("2 - Sair")
+    print("3 - Sair")
+
     opcao = input("Escolha uma opção: ")
     if opcao == "1":
-        if opcao == "1":
-            cep = limpar_cep(input("Digite o CEP (só números): "))
-            if not cep_valido(cep):
-                print("CEP inválido! Digite 8 números, sem espaços ou traços.")
-                continue
-            dados = consultar_cep(cep)
+        cep = limpar_cep(input("Digite o CEP (só números): "))
+        if not cep_valido(cep):
+            print("CEP inválido! Digite 8 números, sem espaços ou traços.")
+            continue
+        dados = consultar_cep(cep)
         if dados.get("erro"):
             print("CEP não encontrado.")
             continue
-            exibir_endereco(dados)
+        exibir_endereco(dados)
+        historico.append(dados)
+
     elif opcao == "2":
+        if not historico:
+            print("Nenhuma busca feita ainda.")
+        else:
+            for item in historico:
+                print(item["cep"], "-", item["logradouro"])
+
+    elif opcao == "3":
         print("Até logo!")
         break
+
     else:
         print("Opção inválida.")
